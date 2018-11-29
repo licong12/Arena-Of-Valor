@@ -185,6 +185,25 @@ public class Balls {
 		return new Rectangle(x, y, width, length);
 	}
 	
+	public boolean SkillScopes(List<Hero> heros) {
+		for (int i = 0; i < heros.size(); i++) {
+			if (SkillScope(heros.get(i))) { 
+				return true;
+			}
+		}
+		return false; 
+	}
+	
+	public boolean SkillScope(Hero hero) {
+		System.out.println(this.getRect().intersects(hero.getSkillRect()));
+		if (this.live && !this.getRect().intersects(hero.getSkillRect()) && hero.isLive()
+				&&hero.name=="AnQiLa"&&this.good == hero.isGood()) {
+			this.live=false;
+			return true;
+		}
+		return false;
+	}
+	
 	/**
 	 * <b><em>The way fireball hits a hero</em></b>
 	 * <p>Determine if the fireball hits the enemy hero, and if so, perform the effect after hitting{@code hitHero(heros.get(i))}
@@ -213,14 +232,13 @@ public class Balls {
 			battleField.bombHeros.add(e);
 			if(hero.getLife()>50) {
 				hero.setLife(hero.getLife() - 50);
-				hero.setMP(hero.getMP()+25); 
+//				hero.setMP(hero.getMP()+25); 
 			}
 			else if(hero.getLife()<=50)
 				hero.setLife(hero.getLife() - 5);
 			if (hero.getLife() <= 0)
 				hero.setLive(false); 
 			this.live = false;
-
 			return true;
 		}
 		return false;

@@ -2,9 +2,10 @@ package com.Leo.Game;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
+
+
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Time;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -22,7 +23,7 @@ import javax.swing.JOptionPane;
  * @version 2.0
  * @since 2018.11.20
  */
-public class BattleField extends Frame implements ActionListener {
+public class BattleField extends Frame implements ActionListener{
 
 	private static Logger logger = Logger.getLogger(BattleField.class);
 	
@@ -31,8 +32,9 @@ public class BattleField extends Frame implements ActionListener {
 	public static final int Fram_length = 600;
 	public static boolean printable = true;
 	private static Toolkit tk = Toolkit.getDefaultToolkit();
-	static Timer time = new Timer("游戏时间");  
-
+	static Timer time = new Timer("游戏时间"); 
+	static Timer []DeadTime=new Timer[10];
+	
 	private static Image[] map= null;
 	static {
 			map=new Image[] {
@@ -46,7 +48,7 @@ public class BattleField extends Frame implements ActionListener {
 			jmi6 = null, jmi7 = null, jmi8 = null, jmi9 = null;
 	Image screenImage = null;
 
-	Master MyHero = new Master(300, 560, true, false, Direction.STOP, this);
+	Hero MyHero; //= new Master(300, 560, true, false, Direction.STOP, this);
 	Home RedHome = new Home(50, 550,true, this);
 	Home BlueHome = new Home(700, 55,false, this);
 	GetBlood blood = new GetBlood();
@@ -55,6 +57,9 @@ public class BattleField extends Frame implements ActionListener {
 	List<BombHero> bombHeros = new ArrayList<BombHero>();
 	List<Bullets> bullets = new ArrayList<Bullets>();
 	List<Balls> balls= new ArrayList<Balls>();
+	List<Swards> swards= new ArrayList<Swards>();
+	List<Rivers> rivers= new ArrayList<Rivers>();
+	List<Soccers> soccers= new ArrayList<Soccers>();
 	List<MetalWall> metalWall = new ArrayList<MetalWall>();
 
 	/**
@@ -97,6 +102,8 @@ public class BattleField extends Frame implements ActionListener {
 			m.hitHero(MyHero); 
 			m.hitHome(RedHome);
 			m.hitHome(BlueHome); 
+			m.SkillScopes(heros);
+			m.SkillScope(MyHero);
 
 			for (int j = 0; j < metalWall.size(); j++) {
 				MetalWall mw = metalWall.get(j);
@@ -104,12 +111,15 @@ public class BattleField extends Frame implements ActionListener {
 			}
 			m.draw(g);
 		}
+		
 		for (int i = 0; i < balls.size(); i++) { 
 			Balls m = balls.get(i);
 			m.hitHeros(heros); 
 			m.hitHero(MyHero); 
 			m.hitHome(RedHome);
 			m.hitHome(BlueHome); 
+			m.SkillScopes(heros);
+			m.SkillScope(MyHero);
 
 			for (int j = 0; j < metalWall.size(); j++) {
 				MetalWall mw = metalWall.get(j);
@@ -117,12 +127,61 @@ public class BattleField extends Frame implements ActionListener {
 			}
 			m.draw(g);
 		}
+		
+		for (int i = 0; i < swards.size(); i++) {
+			Swards m = swards.get(i);
+			m.hitHeros(heros);
+			m.hitHero(MyHero); 
+			m.hitHome(RedHome);
+			m.hitHome(BlueHome); 
+			m.SkillScopes(heros);
+			m.SkillScope(MyHero);
+
+			for (int j = 0; j < metalWall.size(); j++) {
+				MetalWall mw = metalWall.get(j);
+				m.hitWall(mw);
+			}
+			m.draw(g);
+		}
+		
+		for (int i = 0; i < rivers.size(); i++) { 
+			Rivers m = rivers.get(i);
+			m.hitHeros(heros); 
+			m.hitHero(MyHero); 
+			m.hitHome(RedHome);
+			m.hitHome(BlueHome);
+			m.SkillScopes(heros);
+			m.SkillScope(MyHero);
+
+			for (int j = 0; j < metalWall.size(); j++) {
+				MetalWall mw = metalWall.get(j);
+				m.hitWall(mw);
+			}
+			m.draw(g);
+		}
+		
+		for (int i = 0; i < soccers.size(); i++) { 
+			Soccers m = soccers.get(i);
+			m.hitHeros(heros); 
+			m.hitHero(MyHero); 
+			m.hitHome(RedHome);
+			m.hitHome(BlueHome); 
+			m.SkillScopes(heros);
+			m.SkillScope(MyHero);
+
+			for (int j = 0; j < metalWall.size(); j++) {
+				MetalWall mw = metalWall.get(j);
+				m.hitWall(mw);
+			}
+			m.draw(g);
+		}
+		
 		for (int i = 0; i < heros.size(); i++) {
 			Hero hero = heros.get(i);
 			for (int j = 0; j < metalWall.size(); j++) { 
 				MetalWall mw = metalWall.get(j);
 				hero.collideWithWall(mw);
-//				mw.draw(g);s
+//				mw.draw(g);
 			}
 			hero.collideWithHeros(heros); 
 			hero.collideHome(RedHome);
@@ -222,28 +281,29 @@ public class BattleField extends Frame implements ActionListener {
 		jmi8.setActionCommand("level3");
 		jmi9.addActionListener(this);
 		jmi9.setActionCommand("level4");
-
 		this.setMenuBar(jmb);
-		this.setVisible(true);
-
 		
-		for (int i = 0; i < 10; i++) {
-			metalWall.add(new MetalWall(0, 60 * i, this));
-			metalWall.add(new MetalWall(760, 60 * i, this));
-			metalWall.add(new MetalWall(460-30*i, 83+40*i, this));
-			metalWall.add(new MetalWall(550-30*i, 160+40*i, this));
-		}
+//		for (int i = 0; i < 10; i++) {
+//			metalWall.add(new MetalWall(0, 60 * i, this));
+//			metalWall.add(new MetalWall(760, 60 * i, this));
+//			metalWall.add(new MetalWall(460-30*i, 83+40*i, this));
+//			metalWall.add(new MetalWall(550-30*i, 160+40*i, this));
+//		}
 		
-		for (int i = 0; i < 9; i++) { 
-			if (i < 5) 
-				heros.add(new Shooter(430+70 * i, 80, false, true, Direction.D, this));
-			else
-				heros.add(new Master(150*(i-4), 520, true, true, Direction.D,this));
-		}
+//				heros.add(new Shooter(430+70 * 1, 80, false, true, Direction.D, this));
+//				heros.add(new Tank(430+70 * 2, 80, false, true, Direction.D, this));
+//				heros.add(new Master(430+70 * 3, 80, false, true, Direction.D, this));
+//				heros.add(new Assistant(430+70 * 4, 80, false, true, Direction.D, this));
+//				heros.add(new MESSI(430+70 * 5, 80, false, true, Direction.D, this));
+//				heros.add(new Shooter(40+ 70*1, 520, true, true, Direction.D, this));
+//				heros.add(new Tank(40+ 70*2, 520, true, true, Direction.D,this));
+//				heros.add(new Assistant(40 + 70* 3, 520, true, true, Direction.D, this));
+//				heros.add(new MESSI(40 + 70* 4, 520, true, true, Direction.D, this));
+//				
 		
 		this.setSize(Fram_width, Fram_length); 
 		this.setLocation(280, 50);
-		this.setTitle("Arean OF Valor ");
+		this.setTitle("Arean Of Valor ");
 
 		this.addWindowListener(new WindowAdapter() {
 					public void windowClosing(WindowEvent e) {
@@ -252,23 +312,25 @@ public class BattleField extends Frame implements ActionListener {
 				});
 		this.setResizable(false);
 		this.setBackground(Color.GREEN);
-		this.setVisible(true);
-
 		this.addKeyListener(new KeyMonitor());
+		this.addMouseListener(new MouseMonitor());
+	}
+
+	public void Start() {
+		this.setVisible(true);
 		new Thread(new PaintThread()).start(); 
 		time.Reset(this);
 		time.Continue(this);
 		time.pack();  
 		time.setVisible(true);
 	}
-
-	public static void main(String[] args) {
-		BattleField battleField=new BattleField();	
-		logger.info("Info");
-		
-		logger.debug("Debug");
-		
-	}
+//	public static void main(String[] args) {
+//		BattleField battleField=new BattleField();	
+//		logger.info("Info");
+//		
+//		logger.debug("Debug");
+//		
+//	}
 
 	/**
 	 * <em>Draw thread inherits Runnable interface</em>
@@ -307,7 +369,23 @@ public class BattleField extends Frame implements ActionListener {
 		public void keyPressed(KeyEvent e) { 
 			MyHero.keyPressed(e);
 		}
+		
 	}
+	
+	/**
+	 * <em>鼠标监视器</em>
+	 * @author Leo
+	 * @version 2.0
+	 * @since 2018.11.22
+	 *
+	 */
+	private class MouseMonitor extends MouseAdapter{
+		
+		public void mouseClicked(MouseEvent e) {
+			MyHero.MouseClicked(e);
+		}
+	}
+	
 	
 	/**
 	 * <b><em>Method of listening to menu items</em></b>
@@ -386,7 +464,7 @@ public class BattleField extends Frame implements ActionListener {
 		else if (e.getActionCommand().equals("help")) {
 			printable = false;
 			time.Stop(this);
-			JOptionPane.showMessageDialog(null, "Use → ← ↑ ↓ to control the direction, F keyboard general attack, R restarts!",
+			JOptionPane.showMessageDialog(null, "Use W A S D to control the direction, J keyboard general attack, R restarts!",
 					"Tip！", JOptionPane.INFORMATION_MESSAGE);
 			this.setVisible(true);
 			printable = true;
@@ -401,6 +479,10 @@ public class BattleField extends Frame implements ActionListener {
 			Bullets.speedY = 10;
 			Balls.speedX = 10;
 			Balls.speedY = 10;
+			Swards.speedX = 10;
+			Swards.speedY = 10;
+			Soccers.speedX = 10;
+			Soccers.speedY = 10;
 			this.dispose();
 			new BattleField();
 		}
@@ -412,6 +494,10 @@ public class BattleField extends Frame implements ActionListener {
 			Bullets.speedY = 12;
 			Balls.speedX = 12;
 			Balls.speedY = 12;
+			Swards.speedX = 12;
+			Swards.speedY = 12;
+			Soccers.speedX = 12;
+			Soccers.speedY = 12;
 			this.dispose();
 			new BattleField();
 
@@ -424,6 +510,10 @@ public class BattleField extends Frame implements ActionListener {
 			Bullets.speedY = 16;
 			Balls.speedX = 16;
 			Balls.speedY = 16;
+			Swards.speedX = 16;
+			Swards.speedY = 16;
+			Soccers.speedX = 16;
+			Soccers.speedY = 16;
 			this.dispose();
 			new BattleField();
 		}
@@ -435,8 +525,14 @@ public class BattleField extends Frame implements ActionListener {
 			Bullets.speedY = 18;
 			Balls.speedX = 18;
 			Balls.speedY = 18;
+			Swards.speedX = 18;
+			Swards.speedY = 18;
+			Soccers.speedX = 18;
+			Soccers.speedY = 18;
 			this.dispose();
 			new BattleField();
 		}
 	}
+	
 }
+

@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.sql.Time;
 
 /**
  * <b><em>Home Class</em></b>
@@ -24,8 +25,8 @@ public class Home {
 	private static Toolkit tk = Toolkit.getDefaultToolkit(); 
 	private static Image[] homeImags = null;
 	static {
-		homeImags = new Image[] { tk.getImage(CommonWall.class.getResource("/com/Leo/Game/Images/RedHome.jpg")), 
-				tk.getImage(CommonWall.class.getResource("/com/Leo/Game/Images/BlueHome.jpg"))};
+		homeImags = new Image[] { tk.getImage(Home.class.getResource("/com/Leo/Game/Images/RedHome.jpg")), 
+				tk.getImage(Home.class.getResource("/com/Leo/Game/Images/BlueHome.jpg"))};
 	}
 
 	/**
@@ -61,10 +62,12 @@ public class Home {
 		Color c = g.getColor();
 		g.setColor(Color.pink);
 		Font f = g.getFont();
+		
 		g.setFont(new Font(" ", Font.PLAIN, 40));
 		g.drawString("  Game Over! ", 220, 300);
 		g.setFont(f);
 		g.setColor(c);
+		battleField.time.Stop(battleField);
 	}
 
 	/**
@@ -102,7 +105,6 @@ public class Home {
 			g.setFont(new Font(" ", Font.PLAIN, 40));
 			g.drawString("Defeat!", 280, 250);
 			gameOver(g);
-
 		}
 	}
 	

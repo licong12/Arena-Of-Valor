@@ -190,7 +190,24 @@ public class Bullets {
 	 * @param heros Hero container
 	 * @return Boolean Hit the hero
 	 */
-
+	public boolean SkillScopes(List<Hero> heros) {
+		for (int i = 0; i < heros.size(); i++) {
+			if (SkillScope(heros.get(i))) { 
+				return true;
+			}
+		}
+		return false; 
+	}
+	
+	public boolean SkillScope(Hero hero) {
+		if (this.live && !this.getRect().intersects(hero.getSkillRect()) && hero.isLive()
+				&&hero.name=="LuBanQiHao"&&this.good == hero.isGood()) {
+			this.live=false;
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean hitHeros(List<Hero> heros) {
 		for (int i = 0; i < heros.size(); i++) {
 			if (hitHero(heros.get(i))) { 

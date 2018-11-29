@@ -6,7 +6,7 @@ import java.util.Random;
  * <em>血包类 </em>
  * <p>The blood bag will appear randomly on the battlefield. 
  * When the hero approaches the blood bag, the hero's health increases.
- * @author 鏉庤仾
+ * @author Leo
  * @version 2.0
  * @since 2018.11.20
  */
@@ -25,8 +25,8 @@ public class GetBlood {
 	private static Toolkit tk = Toolkit.getDefaultToolkit();
 	private static Image[] bloodImags = null;
 	static {
-		bloodImags = new Image[] { tk.getImage(CommonWall.class
-				.getResource("/com/Leo/Game/Images/hp.png")), };
+		bloodImags = new Image[] { tk.getImage(GetBlood.class
+				.getResource("/com/Leo/Game/Images/Blood.gif")), };
 	}
 
 	private int[][] poition = { { 155, 196 }, { 500, 58 }, { 80, 340 },

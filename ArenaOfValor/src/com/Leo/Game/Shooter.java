@@ -2,6 +2,8 @@ package com.Leo.Game;
 import java.awt.*;
 import java.awt.event.*;
 
+import javafx.scene.shape.Circle;
+
 
 /**
  * <strong>Shooter class</strong>
@@ -10,7 +12,7 @@ import java.awt.event.*;
  * @version 2.0
  * @since 2018.11.20
  */
-public class Shooter extends Hero{
+public class Shooter extends Hero {
 	
 	/**
 	 * {@linkplain Hero#Hero(int, int, boolean, boolean)}
@@ -21,6 +23,7 @@ public class Shooter extends Hero{
 	 */
 	public Shooter(int x, int y, boolean good,boolean robot) {
 		super(x, y, good,robot);
+		name="LuBanQiHao";
 	}
 	
 	/**
@@ -34,6 +37,7 @@ public class Shooter extends Hero{
 	 */
 	public Shooter(int x, int y, boolean good, boolean robot,Direction dir, BattleField battleField) {
 		super(x, y, good, robot, dir, battleField);
+		name="LuBanQiHao";
 	}
 
 	/**
@@ -41,8 +45,15 @@ public class Shooter extends Hero{
 	 */
 	public void draw(Graphics g) {
 		if (!live) {
-			if (!good) {
-				battleField.heros.remove(this);
+			if(DeadTime>0) {
+				direction=Direction.STOP;
+				DeadTime--;
+			}
+			else if(DeadTime==0) {
+				this.setLive(true);
+				this.HP=200;
+				this.setLife(HP);
+				DeadTime=100;
 			}
 			return;
 		}
@@ -52,18 +63,18 @@ public class Shooter extends Hero{
 		switch (Kdirection) {
 
 		case D:
-			g.drawImage(BlueHeroImags[0], x, y, null);
+			g.drawImage(LuBanQiHaoImags[0], x, y, null);
 			break;
 
 		case U:
-			g.drawImage(BlueHeroImags[1], x, y, null);
+			g.drawImage(LuBanQiHaoImags[1], x, y, null);
 			break;
 		case L:
-			g.drawImage(BlueHeroImags[2], x, y, null);
+			g.drawImage(LuBanQiHaoImags[2], x, y, null);
 			break;
 
 		case R:
-			g.drawImage(BlueHeroImags[3], x, y, null);
+			g.drawImage(LuBanQiHaoImags[3], x, y, null);
 			break;
 
 		}
@@ -94,7 +105,22 @@ public class Shooter extends Hero{
 		case STOP:
 			break;
 		}
-
+		if(clicked) {
+			if(bL&&bU) {
+				y-=speedY;
+			}
+			else if(bL&&bD) {
+				y+=speedY;
+			}
+			if(bR&&bU) {
+				x+=speedX;
+			}
+			else if(bR&&bD) {
+				y+=speedY;
+			}
+			if(clickX==this.getX()&&clickY==this.getY())
+				clicked=false;
+		}
 		if (this.direction != Direction.STOP) {
 			this.Kdirection = this.direction;
 		}
@@ -117,7 +143,7 @@ public class Shooter extends Hero{
 			}
 			step--;
 
-			if (r.nextInt(40) < 10)
+			if (r.nextInt(40) < 1)
 				this.ShooterFire();
 		}
 	}
@@ -134,45 +160,7 @@ public class Shooter extends Hero{
 	 * {@linkplain Hero#keyPressed(KeyEvent)}
 	 */
 	public void keyPressed(KeyEvent e) { 
-		int key = e.getKeyCode();
-		switch (key) {
-		case KeyEvent.VK_R:  
-			battleField.heros.clear();
-			battleField.bullets.clear();
-//			battleField.trees.clear();
-//			battleField.otherWall.clear();
-			battleField.metalWall.clear();
-			battleField.MyHero.setLive(false);
-			if (battleField.heros.size() == 0) {
-						battleField.heros.add(new Shooter(150 + 70 * 3, 40, false, true,
-								Direction.R, battleField));
-			}
-			
-			battleField.MyHero = new Master(300, 560, true, false, Direction.STOP, battleField);
-			
-			if (!battleField.RedHome.isLive())
-				battleField.RedHome.setLive(true);
-			if (!battleField.BlueHome.isLive()) 
-				battleField.BlueHome.setLive(true);
-			new BattleField();
-			break;
-		case KeyEvent.VK_RIGHT: 
-			bR = true;
-			break;
-			
-		case KeyEvent.VK_LEFT:
-			bL = true;
-			break;
-		
-		case KeyEvent.VK_UP: 
-			bU = true;
-			break;
-		
-		case KeyEvent.VK_DOWN:
-			bD = true;
-			break;
-		}
-		decideDirection();
+		super.keyPressed(e);
 	}
 
 	/**
@@ -185,26 +173,26 @@ public class Shooter extends Hero{
 	/**
 	 * {@linkplain Hero#keyPressed(KeyEvent)}
 	 */
-	public void keyReleased(KeyEvent e) {  //闁款喚娲忛柌濠冩杹閻╂垵鎯�
+	public void keyReleased(KeyEvent e) { 
 		int key = e.getKeyCode();
 		switch (key) {
-		case KeyEvent.VK_F:
+		case KeyEvent.VK_J:
 			ShooterFire();
 			break;
 			
-		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_D:
 			bR = false;
 			break;
 		
-		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_A:
 			bL = false;
 			break;
 		
-		case KeyEvent.VK_UP:
+		case KeyEvent.VK_W:
 			bU = false;
 			break;
 		
-		case KeyEvent.VK_DOWN:
+		case KeyEvent.VK_S:
 			bD = false;
 			break;
 		}
@@ -233,6 +221,9 @@ public class Shooter extends Hero{
 		return new Rectangle(x, y, width, length);
 	}
 
+	public Rectangle getSkillRect() {
+		return new Rectangle(x - Skill_scope / 2 ,y - Skill_scope / 2 , Skill_scope, Skill_scope);
+	}
 	/**
 	 * {@linkplain Hero#isLive()}
 	 */
@@ -255,65 +246,24 @@ public class Shooter extends Hero{
 	}
 
 	/**
-	 * {@linkplain Hero#collideWithWall(CommonWall)}
-	 */
-	public boolean collideWithWall(CommonWall w) {  
-		if (this.live && this.getRect().intersects(w.getRect())) {
-			 this.changToOldDir();    
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * {@linkplain Hero#collideWithWall(MetalWall)}
 	 */
 	public boolean collideWithWall(MetalWall w) { 
-		if (this.live && this.getRect().intersects(w.getRect())) {
-			this.changToOldDir();     
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * {@linkplain Hero#collideRiver(River)}
-	 */
-	public boolean collideRiver(River r) {   
-		if (this.live && this.getRect().intersects(r.getRect())) {
-			this.changToOldDir();
-			return true;
-		}
-		return false;
+		return super.collideWithWall(w);
 	}
 
 	/**
 	 * {@linkplain Hero#collideHome(Home)}
 	 */
 	public boolean collideHome(Home h) {  
-		if (this.live && this.getRect().intersects(h.getRect())) {
-			this.changToOldDir();
-			return true;
-		}
-		return false;
+		return super.collideHome(h);
 	}
 
 	/**
 	 * {@linkplain Hero#collideWithHeros(java.util.List)}
 	 */
 	public boolean collideWithHeros(java.util.List<Hero> heros) {
-		for (int i = 0; i < heros.size(); i++) {
-			Hero t = heros.get(i);
-			if (this != t) {
-				if (this.live && t.isLive()
-						&& this.getRect().intersects(t.getRect())) {
-					this.changToOldDir();
-					t.changToOldDir();
-					return true;
-				}
-			}
-		}
-		return false;
+		return super.collideWithHeros(heros);
 	}
 
 	/**
@@ -380,5 +330,8 @@ public class Shooter extends Hero{
 	 */
 	public int getY() {
 		return y;
+	}
+	public void MouseClicked(MouseEvent e) { 
+		super.MouseClicked(e);
 	}
 }

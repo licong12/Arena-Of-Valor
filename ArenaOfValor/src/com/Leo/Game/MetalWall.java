@@ -25,8 +25,8 @@ public class MetalWall {
 	private static Toolkit tk = Toolkit.getDefaultToolkit();
 	private static Image[] wallImags = null;
 	static {
-		wallImags = new Image[] { tk.getImage(CommonWall.class
-				.getResource("/com/Leo/Game/Images/metalWall.gif")), };
+		wallImags = new Image[] { tk.getImage(MetalWall.class
+				.getResource("com/Leo/Game/Images/metalWall.gif")), };
 	}
 
 	/**

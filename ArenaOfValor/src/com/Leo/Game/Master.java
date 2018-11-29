@@ -3,7 +3,10 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
-import java.util.List;
+import java.awt.event.MouseEvent;
+
+import javafx.scene.shape.Circle;
+
 
 /**
  * <strong>Master class</strong>
@@ -12,7 +15,7 @@ import java.util.List;
  * @version 2.0
  * @since 2018.11.20
  */
-public class Master extends Hero{
+public class Master extends Hero {
 	/**
 	 * {@linkplain Hero#Hero(int, int, boolean, boolean)}
 	 * @param x Mage abscissa
@@ -22,6 +25,7 @@ public class Master extends Hero{
 	 */
 	public Master(int x, int y, boolean good, boolean robot) {
 		super(x, y, good,robot);
+		name="AnQiLa";
 	}
 
 	/**
@@ -35,6 +39,7 @@ public class Master extends Hero{
 	 */
 	public Master(int x, int y, boolean good, boolean robot, Direction dir, BattleField battleField) {
 		super(x, y, good, robot, dir, battleField);
+		name="AnQiLa";
 	}
 
 	/**
@@ -42,10 +47,21 @@ public class Master extends Hero{
 	 */
 	public void draw(Graphics g) {
 		if (!live) {
-			if (!good) {
-				battleField.heros.remove(this); 
+			if(DeadTime>0) {
+				direction=Direction.STOP;
+				DeadTime--;
+			}
+			else if(DeadTime==0) {
+				this.setLive(true);
+				this.HP=200;
+				this.setLife(HP);
+				DeadTime=100;
 			}
 			return;
+		}
+		if(!robot) {
+			System.out.println("clickx:"+clickX+"::"+"x:"+this.getX());
+			System.out.println("clicky:"+clickY+"::"+"y:"+this.getY());
 		}
 		new DrawBloodbBar().draw(g);
 		new DrawMPbBar().draw(g);
@@ -53,32 +69,62 @@ public class Master extends Hero{
 		switch (Kdirection) {
 							
 		case D:
-			g.drawImage(RedHeroImags[0], x, y, null);
+			g.drawImage(AnQiLaImags[0], x, y, null);
 			break;
 
 		case U:
-			g.drawImage(RedHeroImags[1], x, y, null);
+			g.drawImage(AnQiLaImags[1], x, y, null);
 			break;
 		case L:
-			g.drawImage(RedHeroImags[2], x, y, null);
+			g.drawImage(AnQiLaImags[2], x, y, null);
 			break;
 
 		case R:
-			g.drawImage(RedHeroImags[3], x, y, null);
+			g.drawImage(AnQiLaImags[3], x, y, null);
 			break;
 
 		}
-		move();   
+		this.move();   
 	}
 	
 	/**
 	 * {@linkplain Hero#move()}
 	 * @param heros Robot
 	 */
-	void move(List<Hero> heros) {
+	void move() {
 		this.oldX = x;
 		this.oldY = y;
-
+		
+		if(clicked&&!robot) {
+			if(bL&&clickX<this.getX()) 
+				direction=Direction.L;
+			else if(bU&&clickY<this.getY())
+				direction=Direction.U;
+			else if(bR&&clickX>this.getX())
+				direction=Direction.R;
+			else if(bD&&clickY>this.getY())
+				direction=Direction.D;
+			if(bL&&clickX>=this.getX()) {
+				bL=false;
+				direction=Direction.STOP;
+			}
+			System.out.println(direction);
+			if(bU&&clickY>=this.getY()) {
+				bU=false;
+				direction=Direction.STOP;
+			}
+			if(bR&&clickX<=this.getX()) {
+				bR=false;
+				direction=Direction.STOP;
+			}
+			if(bD&&clickY<=this.getY()) {
+				bD=false;
+				direction=Direction.STOP;
+			}
+			if(!bL&&!bD&&!bU&&!bR)
+				clicked=false;
+		}
+		
 		switch (direction) {  
 		case L:
 			x -= speedX;
@@ -95,6 +141,7 @@ public class Master extends Hero{
 		case STOP:
 			break;
 		}
+		
 		if (this.direction != Direction.STOP) {
 			this.Kdirection = this.direction;
 		}
@@ -117,7 +164,7 @@ public class Master extends Hero{
 			}
 			step--;
 
-			if (r.nextInt(40) < 38)
+			if (r.nextInt(40) > 38)
 				this.MasterFire();
 		}
 	}
@@ -125,53 +172,13 @@ public class Master extends Hero{
 	 * {@linkplain Hero#changToOldDir()}
 	 */
 	protected void changToOldDir() {  
-		x = oldX;
-		y = oldY;
+		super.changToOldDir();
 	}
-
 	/**
 	 * {@linkplain Hero#keyPressed(KeyEvent)}
 	 */
 	public void keyPressed(KeyEvent e) {  
-		int key = e.getKeyCode();
-		switch (key) {
-		case KeyEvent.VK_R:  
-			battleField.heros.clear();
-			battleField.balls.clear();
-//			battleField.trees.clear();
-//			battleField.otherWall.clear();
-			battleField.metalWall.clear();
-			battleField.MyHero.setLive(false);
-			if (battleField.heros.size() == 0) {  
-				battleField.heros.add(new Master(150 + 70 *3, 40, false, true,
-								Direction.R, battleField));
-			}
-			
-			battleField.MyHero = new Master(300, 560, true, false, Direction.STOP, battleField);
-			
-			if (!battleField.RedHome.isLive()) 
-				battleField.RedHome.setLive(true);
-			if (!battleField.BlueHome.isLive()) 
-				battleField.BlueHome.setLive(true);
-			new BattleField();
-			break;
-		case KeyEvent.VK_RIGHT: 
-			bR = true;
-			break;
-			
-		case KeyEvent.VK_LEFT:
-			bL = true;
-			break;
-		
-		case KeyEvent.VK_UP: 
-			bU = true;
-			break;
-		
-		case KeyEvent.VK_DOWN:
-			bD = true;
-			break;
-		}
-		decideDirection();
+		super.keyPressed(e);
 	}
 
 	/**
@@ -188,23 +195,23 @@ public class Master extends Hero{
 		int key = e.getKeyCode();
 		switch (key) {
 		
-		case KeyEvent.VK_F:
+		case KeyEvent.VK_J:
 			MasterFire();
 			break;
 			
-		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_D:
 			bR = false;
 			break;
 		
-		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_A:
 			bL = false;
 			break;
 		
-		case KeyEvent.VK_UP:
+		case KeyEvent.VK_W:
 			bU = false;
 			break;
 		
-		case KeyEvent.VK_DOWN:
+		case KeyEvent.VK_S:
 			bD = false;
 			break;
 		}
@@ -231,6 +238,10 @@ public class Master extends Hero{
 	public Rectangle getRect() {
 		return new Rectangle(x, y, width, length);
 	}
+	
+	public Rectangle getSkillRect() {
+		return new Rectangle(x - Skill_scope / 2 ,y - Skill_scope / 2 , Skill_scope, Skill_scope);
+	}
 
 	/**
 	 * {@linkplain Hero#isLive()}
@@ -254,67 +265,25 @@ public class Master extends Hero{
 	}
 
 	/**
-	 * {@linkplain Hero#collideWithWall(CommonWall)}
-	 */
-	public boolean collideWithWall(CommonWall w) {  
-		if (this.live && this.getRect().intersects(w.getRect())) {
-			 this.changToOldDir();    
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * {@linkplain Hero#collideWithWall(MetalWall)}
 	 */
 	public boolean collideWithWall(MetalWall w) { 
-		if (this.live && this.getRect().intersects(w.getRect())) {
-			this.changToOldDir();     
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * {@linkplain Hero#collideRiver(River)}
-	 */
-	public boolean collideRiver(River r) {   
-		if (this.live && this.getRect().intersects(r.getRect())) {
-			this.changToOldDir();
-			return true;
-		}
-		return false;
+		return super.collideWithWall(w);
 	}
 
 	/**
 	 * {@linkplain Hero#collideHome(Home)}
 	 */
 	public boolean collideHome(Home h) {  
-		if (this.live && this.getRect().intersects(h.getRect())) {
-			this.changToOldDir();
-			return true;
-		}
-		return false;
+		return super.collideHome(h);
 	}
 
 	/**
 	 * {@linkplain Hero#collideWithHeros(java.util.List)}
 	 */
 	public boolean collideWithHeros(java.util.List<Hero> heros) {
-		for (int i = 0; i < heros.size(); i++) {
-			Hero t = heros.get(i);
-			if (this != t) {
-				if (this.live && t.isLive()
-						&& this.getRect().intersects(t.getRect())) {
-					this.changToOldDir();
-					t.changToOldDir();
-					return true;
-				}
-			}
-		}
-		return false;
+		return super.collideWithHeros(heros);
 	}
-
 
 	/**
 	 * {@linkplain Hero#getLife()}
@@ -342,9 +311,9 @@ public class Master extends Hero{
 		public void draw(Graphics g) {
 			Color c = g.getColor();
 			g.setColor(Color.RED);
-			g.drawRect(getX()-3, getY()-30, width, 5);
+			g.drawRect(getX()+20, getY()-30, width, 5);
 			int w = width * HP / 200;
-			g.fillRect(getX()-3, getY()-30, w, 5);
+			g.fillRect(getX()+20, getY()-30, w, 5);
 			g.setColor(c);
 		}
 	}
@@ -352,9 +321,9 @@ public class Master extends Hero{
 		public void draw(Graphics g) {
 			Color c = g.getColor();
 			g.setColor(Color.BLUE);
-			g.drawRect(getX()-3, getY()-20, width, 5);
+			g.drawRect(getX()+20, getY()-20, width, 5);
 			int w = width * MP / 100;
-			g.fillRect(getX()-3, getY()-20, w, 5);
+			g.fillRect(getX()+20, getY()-20, w, 5);
 			g.setColor(c);
 		}
 	}
@@ -389,4 +358,7 @@ public class Master extends Hero{
 	}
 
 
+	public void MouseClicked(MouseEvent e) { 
+		super.MouseClicked(e);
+	}
 }
